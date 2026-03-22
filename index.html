@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Diagnostic Lean · Menuiserie Haut de Gamme</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --wd:#1e1408;--wm:#3d2510;--wl:#6b4226;
+  --gl:#c9a84c;--g2:#e8c97a;
+  --cr:#f5f0e8;--cd:#ede4d3;
+  --td:#1a120a;--tm:#4a3728;--tl:#7a6552;
+  --wh:#fdfaf5;--acc:#2c5f2e;
+  --danger:#c0392b;--info:#1a6fa8;
+}
+html{scroll-behavior:smooth;}
+body{font-family:'DM Sans',sans-serif;background:var(--cr);color:var(--td);overflow-x:hidden;}
+
+/* ── VIEWS ── */
+.view{display:none;}
+.view.active{display:block;}
+
+/* ── NAV ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:.85rem 2.5rem;background:rgba(30,20,8,0.94);backdrop-filter:blur(10px);border-bottom:1px solid rgba(201,168,76,.12);}
+.nav-logo{font-family:'Cormorant Garamond',serif;font-size:1.1rem;color:var(--g2);letter-spacing:.04em;font-weight:400;}
+.nav-links{display:flex;gap:.4rem;}
+.nav-btn{background:none;border:1px solid rgba(201,168,76,.3);color:rgba(245,240,232,.65);font-family:'DM Sans',sans-serif;font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;padding:.38rem .95rem;cursor:pointer;transition:all .22s;}
+.nav-btn:hover,.nav-btn.active{border-color:var(--gl);color:var(--gl);}
+.nav-btn.admin-btn{border-color:rgba(44,120,46,.4);color:rgba(90,180,90,.65);}
+.nav-btn.admin-btn:hover,.nav-btn.admin-btn.active{border-color:#5aaa5c;color:#5aaa5c;}
+
+/* ── HERO ── */
+#hero{min-height:100vh;background:var(--wd);display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;padding-top:60px;position:relative;}
+#hero::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent,transparent 80px,rgba(201,168,76,.022) 80px,rgba(201,168,76,.022) 81px),repeating-linear-gradient(0deg,transparent,transparent 80px,rgba(201,168,76,.022) 80px,rgba(201,168,76,.022) 81px);}
+#hero::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:100px;background:linear-gradient(to bottom,transparent,var(--cr));}
+.hero-inner{position:relative;z-index:2;text-align:center;padding:2rem;max-width:820px;}
+.badge{display:inline-block;border:1px solid var(--gl);color:var(--gl);font-size:.62rem;letter-spacing:.24em;text-transform:uppercase;padding:.32rem 1.1rem;margin-bottom:2.2rem;animation:fu .8s .2s both;}
+.h-title{font-family:'Cormorant Garamond',serif;font-size:clamp(2.6rem,7vw,5.4rem);font-weight:300;color:var(--wh);line-height:1.04;margin-bottom:.3rem;animation:fu .8s .4s both;}
+.h-title em{font-style:italic;color:var(--g2);}
+.h-sub{font-family:'Cormorant Garamond',serif;font-size:clamp(.88rem,2.2vw,1.22rem);font-weight:300;color:rgba(245,240,232,.48);margin-bottom:2.6rem;animation:fu .8s .55s both;letter-spacing:.04em;}
+.h-div{width:48px;height:1px;background:var(--gl);margin:0 auto 2.4rem;animation:fu .8s .65s both;}
+.h-desc{font-size:.88rem;color:rgba(245,240,232,.48);line-height:1.9;max-width:500px;margin:0 auto 3rem;animation:fu .8s .75s both;}
+.h-cta{display:inline-block;background:var(--gl);color:var(--wd);font-size:.78rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase;padding:.95rem 2.8rem;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;transition:all .3s;animation:fu .8s .9s both;}
+.h-cta:hover{background:var(--g2);transform:translateY(-2px);box-shadow:0 12px 36px rgba(201,168,76,.22);}
+
+/* ── MODULES ── */
+.modules-strip{background:var(--cd);padding:5rem 2rem 4rem;margin-top:100px;position:relative;z-index:1;}
+.modules-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(255px,1fr));gap:1.5px;max-width:1060px;margin:0 auto;background:rgba(92,61,30,.15);}
+.mod-card{background:var(--cr);padding:2rem 1.6rem;transition:background .22s;}
+.mod-card:hover{background:var(--wh);}
+.mod-letter{font-family:'Cormorant Garamond',serif;font-size:3rem;font-weight:300;color:var(--gl);opacity:.4;line-height:1;margin-bottom:.7rem;}
+.mod-title{font-family:'Cormorant Garamond',serif;font-size:1.08rem;font-weight:600;color:var(--wd);margin-bottom:.45rem;}
+.mod-desc{font-size:.78rem;color:var(--tl);line-height:1.7;}
+.mod-count{display:inline-block;margin-top:.9rem;font-size:.62rem;letter-spacing:.15em;text-transform:uppercase;color:var(--gl);border-bottom:1px solid rgba(201,168,76,.3);padding-bottom:2px;}
+
+/* ── TRUST ── */
+.trust{background:var(--wm);padding:2.5rem 2rem;display:flex;justify-content:center;gap:3rem;flex-wrap:wrap;}
+.trust-item{display:flex;align-items:center;gap:.7rem;color:rgba(245,240,232,.68);font-size:.78rem;}
+.trust-icon{width:26px;height:26px;border:1px solid var(--gl);border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--gl);font-size:.82rem;flex-shrink:0;}
+
+/* ── FORM HEADER ── */
+#formView{min-height:100vh;padding-top:60px;background:var(--cr);}
+.form-header{background:var(--wd);padding:2.2rem 2rem 1.8rem;text-align:center;}
+.form-header h2{font-family:'Cormorant Garamond',serif;font-size:clamp(1.5rem,3.5vw,2.3rem);font-weight:300;color:var(--wh);margin-bottom:.3rem;}
+.form-header p{font-size:.78rem;color:rgba(245,240,232,.4);letter-spacing:.04em;}
+.progress-wrap{height:3px;background:rgba(255,255,255,.06);}
+.progress-bar{height:3px;background:var(--gl);transition:width .5s ease;}
+.steps-bar{background:var(--wd);padding:.7rem 2rem;display:flex;align-items:center;justify-content:center;gap:.4rem;flex-wrap:wrap;border-top:1px solid rgba(201,168,76,.08);}
+.step-dot{width:26px;height:26px;border-radius:50%;border:1px solid rgba(201,168,76,.25);display:flex;align-items:center;justify-content:center;font-size:.62rem;font-weight:500;color:rgba(245,240,232,.3);cursor:pointer;transition:all .22s;font-family:'DM Sans',sans-serif;}
+.step-dot.active{border-color:var(--gl);color:var(--gl);background:rgba(201,168,76,.1);}
+.step-dot.done{background:var(--gl);color:var(--wd);border-color:var(--gl);}
+
+/* ── FORM BODY ── */
+.form-body{max-width:700px;margin:0 auto;padding:3rem 2rem 6rem;}
+.sec-header{margin-bottom:2.4rem;padding-bottom:1.4rem;border-bottom:1px solid rgba(92,61,30,.13);}
+.sec-letter{font-family:'Cormorant Garamond',serif;font-size:3.8rem;font-weight:300;color:var(--gl);opacity:.28;line-height:1;}
+.sec-title{font-family:'Cormorant Garamond',serif;font-size:1.55rem;font-weight:400;color:var(--wd);margin-bottom:.4rem;}
+.sec-sub{font-size:.8rem;color:var(--tl);line-height:1.7;font-style:italic;}
+.question{margin-bottom:2rem;}
+.q-label{font-size:.88rem;font-weight:500;color:var(--td);margin-bottom:.75rem;line-height:1.55;}
+.q-num{color:var(--gl);font-family:'Cormorant Garamond',serif;font-size:1.05rem;font-style:italic;margin-right:.3rem;}
+.q-hint{font-size:.73rem;color:var(--tl);margin-bottom:.65rem;font-style:italic;line-height:1.5;}
+
+/* ── INPUTS ── */
+textarea,input[type=text]{width:100%;padding:.72rem .95rem;border:1px solid rgba(92,61,30,.18);background:var(--wh);font-family:'DM Sans',sans-serif;font-size:.86rem;color:var(--td);outline:none;resize:vertical;border-radius:0;transition:border-color .2s;}
+textarea{min-height:85px;}
+textarea:focus,input[type=text]:focus{border-color:var(--gl);}
+
+/* ── SCALE ── */
+.scale-labels{display:flex;justify-content:space-between;font-size:.68rem;color:var(--tl);margin-bottom:.45rem;}
+.scale-btns{display:flex;gap:.3rem;flex-wrap:wrap;}
+.s-btn{width:34px;height:34px;border:1px solid rgba(92,61,30,.18);background:var(--wh);color:var(--tm);font-size:.78rem;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .18s;border-radius:0;}
+.s-btn:hover{border-color:var(--gl);color:var(--gl);}
+.s-btn.sel{background:var(--gl);border-color:var(--gl);color:var(--wd);font-weight:500;}
+
+/* ── OPTIONS ── */
+.opts{display:flex;flex-direction:column;gap:.42rem;}
+.opts.two{display:grid;grid-template-columns:1fr 1fr;gap:.42rem;}
+.opt{display:flex;align-items:flex-start;gap:.65rem;padding:.55rem .85rem;border:1px solid rgba(92,61,30,.13);background:var(--wh);cursor:pointer;transition:all .18s;}
+.opt:hover{border-color:rgba(201,168,76,.35);background:rgba(201,168,76,.04);}
+.opt.sel{border-color:var(--gl);background:rgba(201,168,76,.07);}
+.opt input{margin-top:2px;accent-color:var(--gl);flex-shrink:0;}
+.opt span{font-size:.83rem;color:var(--td);line-height:1.4;}
+
+/* ── MATRIX ── */
+.matrix-wrap{overflow-x:auto;}
+.mtx{width:100%;border-collapse:collapse;font-size:.78rem;}
+.mtx th{padding:.55rem .45rem;text-align:center;color:var(--tl);font-weight:400;border-bottom:1px solid rgba(92,61,30,.13);font-size:.7rem;}
+.mtx th:first-child{text-align:left;}
+.mtx td{padding:.55rem .45rem;border-bottom:1px solid rgba(92,61,30,.07);vertical-align:middle;}
+.mtx td:first-child{font-size:.8rem;color:var(--tm);padding-left:0;}
+.mtx td:not(:first-child){text-align:center;}
+.mtx tr:hover td{background:rgba(201,168,76,.025);}
+.mrad{width:17px;height:17px;accent-color:var(--gl);cursor:pointer;}
+
+/* ── ID GRID ── */
+.id-grid{display:grid;grid-template-columns:1fr 1fr;gap:.9rem;}
+.id-field label{display:block;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--tl);margin-bottom:.35rem;}
+.id-field.full{grid-column:1/-1;}
+
+/* ── FORM NAV ── */
+.form-nav{display:flex;align-items:center;justify-content:space-between;margin-top:2.8rem;padding-top:1.8rem;border-top:1px solid rgba(92,61,30,.1);}
+.btn-prev{background:none;border:1px solid rgba(92,61,30,.22);color:var(--tl);padding:.65rem 1.7rem;font-family:'DM Sans',sans-serif;font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:all .22s;}
+.btn-prev:hover{border-color:var(--gl);color:var(--gl);}
+.btn-next{background:var(--gl);border:none;color:var(--wd);padding:.7rem 2.1rem;font-family:'DM Sans',sans-serif;font-size:.75rem;font-weight:500;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;transition:all .22s;}
+.btn-next:hover{background:var(--g2);}
+.btn-next:disabled{opacity:.5;cursor:not-allowed;}
+.btn-submit{background:var(--acc);border:none;color:#e8f5e8;padding:.7rem 2.3rem;font-family:'DM Sans',sans-serif;font-size:.75rem;font-weight:500;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;transition:all .22s;}
+.btn-submit:hover{background:#3a7a3c;}
+.btn-submit:disabled{opacity:.5;cursor:not-allowed;}
+.step-info{font-size:.72rem;color:var(--tl);}
+
+/* ── SUCCESS ── */
+.success-screen{text-align:center;padding:5rem 2rem;background:var(--wd);min-height:60vh;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.success-icon{width:56px;height:56px;border:2px solid var(--gl);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.4rem;margin:0 auto 1.8rem;color:var(--gl);}
+.success-screen h2{font-family:'Cormorant Garamond',serif;font-size:1.9rem;font-weight:300;color:var(--wh);margin-bottom:.7rem;}
+.success-screen p{font-size:.86rem;color:rgba(245,240,232,.48);max-width:400px;line-height:1.8;}
+
+/* ── ADMIN : LOGIN ── */
+#adminView{min-height:100vh;padding-top:60px;background:var(--cr);}
+.login-screen{min-height:calc(100vh - 60px);background:var(--wd);display:flex;align-items:center;justify-content:center;padding:2rem;}
+.login-card{background:rgba(255,255,255,.04);border:1px solid rgba(201,168,76,.18);padding:3rem 2.5rem;width:100%;max-width:380px;text-align:center;}
+.login-card h2{font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:300;color:var(--wh);margin-bottom:.4rem;}
+.login-card p{font-size:.78rem;color:rgba(245,240,232,.38);margin-bottom:2rem;}
+.login-field{text-align:left;margin-bottom:1.1rem;}
+.login-field label{display:block;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(245,240,232,.38);margin-bottom:.4rem;}
+.login-field input{width:100%;padding:.72rem .95rem;background:rgba(255,255,255,.06);border:1px solid rgba(201,168,76,.2);color:var(--wh);font-family:'DM Sans',sans-serif;font-size:.88rem;outline:none;transition:border-color .2s;}
+.login-field input:focus{border-color:var(--gl);}
+.login-field input::placeholder{color:rgba(245,240,232,.22);}
+.btn-login{width:100%;background:var(--gl);border:none;color:var(--wd);padding:.85rem;font-family:'DM Sans',sans-serif;font-size:.8rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;transition:all .25s;margin-top:.5rem;}
+.btn-login:hover{background:var(--g2);}
+.btn-login:disabled{opacity:.5;cursor:not-allowed;}
+.login-err{font-size:.78rem;color:#e07070;margin-top:.8rem;min-height:1.2rem;}
+
+/* ── ADMIN : DASHBOARD ── */
+.admin-dash{min-height:calc(100vh - 60px);}
+.admin-top{background:var(--wd);padding:1.8rem 2.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;}
+.admin-top h2{font-family:'Cormorant Garamond',serif;font-size:1.55rem;font-weight:300;color:var(--wh);}
+.admin-top-right{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;}
+.a-meta{font-size:.7rem;color:rgba(201,168,76,.5);letter-spacing:.08em;}
+.admin-body{max-width:1080px;margin:0 auto;padding:2.2rem 2rem 5rem;}
+
+/* ── STATS ── */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.9rem;margin-bottom:2.2rem;}
+.stat-card{background:var(--wh);border:1px solid rgba(92,61,30,.1);padding:1.1rem 1.4rem;}
+.stat-num{font-family:'Cormorant Garamond',serif;font-size:2.1rem;font-weight:300;color:var(--gl);line-height:1;}
+.stat-label{font-size:.68rem;color:var(--tl);letter-spacing:.08em;text-transform:uppercase;margin-top:.25rem;}
+.stat-sub{font-size:.68rem;color:var(--tl);margin-top:.15rem;font-style:italic;line-height:1.3;}
+
+/* ── FILTER BAR ── */
+.filter-bar{display:flex;gap:.8rem;margin-bottom:1.4rem;flex-wrap:wrap;align-items:center;}
+.filter-bar input{padding:.48rem .88rem;border:1px solid rgba(92,61,30,.18);background:var(--wh);font-family:'DM Sans',sans-serif;font-size:.8rem;color:var(--td);outline:none;flex:1;min-width:180px;}
+.filter-bar input:focus{border-color:var(--gl);}
+.btn-export{background:var(--wd);border:none;color:var(--g2);padding:.48rem 1.3rem;font-family:'DM Sans',sans-serif;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:all .22s;white-space:nowrap;}
+.btn-export:hover{background:var(--wm);}
+.btn-danger{background:none;border:1px solid rgba(180,50,50,.3);color:rgba(200,80,80,.7);padding:.48rem 1.1rem;font-family:'DM Sans',sans-serif;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:all .22s;white-space:nowrap;}
+.btn-danger:hover{border-color:rgba(200,50,50,.6);color:rgba(220,80,80,.9);}
+.btn-logout{background:none;border:1px solid rgba(201,168,76,.25);color:rgba(201,168,76,.5);padding:.48rem 1rem;font-family:'DM Sans',sans-serif;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:all .22s;}
+.btn-logout:hover{border-color:var(--gl);color:var(--gl);}
+
+/* ── RESPONSE CARDS ── */
+.resp-card{background:var(--wh);border:1px solid rgba(92,61,30,.1);margin-bottom:.8rem;overflow:hidden;}
+.resp-hdr{display:flex;align-items:center;justify-content:space-between;padding:.9rem 1.3rem;cursor:pointer;transition:background .18s;}
+.resp-hdr:hover{background:rgba(201,168,76,.03);}
+.resp-hdr.open{background:rgba(201,168,76,.05);border-bottom:1px solid rgba(92,61,30,.08);}
+.resp-name{font-weight:500;font-size:.88rem;color:var(--td);}
+.resp-meta{font-size:.7rem;color:var(--tl);margin-top:.15rem;}
+.resp-badge{font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;padding:.18rem .55rem;background:rgba(201,168,76,.1);color:var(--gl);border:1px solid rgba(201,168,76,.18);}
+.resp-chev{font-size:.75rem;color:var(--tl);transition:transform .22s;margin-left:.8rem;}
+.resp-chev.open{transform:rotate(180deg);}
+.resp-body{display:none;padding:1.4rem 1.3rem;}
+.resp-body.open{display:block;}
+.resp-sec-title{font-family:'Cormorant Garamond',serif;font-size:.96rem;font-weight:600;color:var(--wd);margin-bottom:.75rem;padding-bottom:.35rem;border-bottom:1px solid rgba(201,168,76,.18);}
+.resp-row{display:flex;gap:.9rem;margin-bottom:.45rem;font-size:.82rem;flex-wrap:wrap;}
+.resp-q{color:var(--tl);min-width:200px;max-width:260px;font-size:.76rem;line-height:1.5;}
+.resp-a{color:var(--td);flex:1;font-size:.8rem;line-height:1.55;word-break:break-word;}
+.resp-sec{margin-bottom:1.4rem;}
+
+/* ── PAGINATION ── */
+.pagination{display:flex;align-items:center;justify-content:center;gap:.4rem;margin-top:1.5rem;}
+.page-btn{background:none;border:1px solid rgba(92,61,30,.18);color:var(--tl);padding:.35rem .7rem;font-family:'DM Sans',sans-serif;font-size:.75rem;cursor:pointer;transition:all .18s;}
+.page-btn:hover,.page-btn.active{border-color:var(--gl);color:var(--gl);}
+.page-btn:disabled{opacity:.3;cursor:default;}
+
+/* ── EMPTY / LOADING ── */
+.empty-state{text-align:center;padding:4rem 2rem;color:var(--tl);font-size:.88rem;}
+.loading{text-align:center;padding:2rem;color:var(--tl);font-size:.82rem;letter-spacing:.06em;}
+.toast{position:fixed;bottom:2rem;right:2rem;background:var(--wd);border:1px solid rgba(201,168,76,.3);color:var(--g2);padding:.8rem 1.4rem;font-size:.8rem;z-index:999;transform:translateY(120%);transition:transform .3s;letter-spacing:.04em;}
+.toast.show{transform:translateY(0);}
+.toast.err{border-color:rgba(200,80,80,.4);color:#e07070;}
+
+/* ── ANIMATIONS ── */
+@keyframes fu{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+@media(max-width:600px){
+  nav{padding:.7rem 1.1rem;}
+  .id-grid{grid-template-columns:1fr;}
+  .opts.two{grid-template-columns:1fr;}
+  .trust{gap:1.4rem;}
+  .admin-top{flex-direction:column;align-items:flex-start;}
+  .resp-row{flex-direction:column;gap:.3rem;}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ NAV ═══ -->
+<nav>
+  <div class="nav-logo">Lean Menuiserie</div>
+  <div class="nav-links">
+    <button class="nav-btn active" id="nb-home" onclick="showView('hero')">Accueil</button>
+    <button class="nav-btn" id="nb-form" onclick="startForm()">Formulaire</button>
+    <button class="nav-btn admin-btn" id="nb-admin" onclick="showAdmin()">Admin ↗</button>
+  </div>
+</nav>
+
+<!-- ═══ TOAST ═══ -->
+<div class="toast" id="toast"></div>
+
+<!-- ═══ HERO ═══ -->
+<div id="hero" class="view active">
+  <div class="hero-inner">
+    <div class="badge">Outil de diagnostic interne · Confidentiel</div>
+    <h1 class="h-title">Questionnaire de<br/><em>Diagnostic Lean</em></h1>
+    <p class="h-sub">Menuiserie Haut de Gamme — Co-construction du Système de Management</p>
+    <div class="h-div"></div>
+    <p class="h-desc">Ce questionnaire recueille la vision, les attentes et le vécu de chaque personne clé — pour construire un système de pilotage qui reflète la réalité du terrain.</p>
+    <button class="h-cta" onclick="startForm()">Commencer le questionnaire →</button>
+  </div>
+  <div style="position:relative;z-index:1;">
+    <div class="modules-strip">
+      <div class="modules-grid">
+        <div class="mod-card"><div class="mod-letter">A</div><div class="mod-title">Vision Stratégique & Priorités</div><div class="mod-desc">Définir le cap avant de construire les outils.</div><div class="mod-count">6 questions</div></div>
+        <div class="mod-card"><div class="mod-letter">B</div><div class="mod-title">Indicateurs de Performance</div><div class="mod-desc">Identifier les KPI actionnables pour chaque rôle.</div><div class="mod-count">6 questions</div></div>
+        <div class="mod-card"><div class="mod-letter">C</div><div class="mod-title">Vécu Terrain & Opérationnel</div><div class="mod-desc">Les non-dits, les frictions, les réussites invisibles.</div><div class="mod-count">7 questions</div></div>
+        <div class="mod-card"><div class="mod-letter">D</div><div class="mod-title">Management & Culture</div><div class="mod-desc">Renforcer la confiance, pas la pression.</div><div class="mod-count">7 questions</div></div>
+        <div class="mod-card"><div class="mod-letter">E</div><div class="mod-title">Ressources & Formation</div><div class="mod-desc">Évaluer les capacités disponibles.</div><div class="mod-count">4 questions</div></div>
+        <div class="mod-card"><div class="mod-letter">F</div><div class="mod-title">Expression Libre</div><div class="mod-desc">Ce que le formulaire n'a peut-être pas couvert.</div><div class="mod-count">3 questions</div></div>
+      </div>
+    </div>
+    <div class="trust">
+      <div class="trust-item"><div class="trust-icon">🔒</div><span>Réponses <strong style="color:var(--g2)">confidentielles</strong></span></div>
+      <div class="trust-item"><div class="trust-icon">⏱</div><span><strong style="color:var(--g2)">15–20 min</strong> estimées</span></div>
+      <div class="trust-item"><div class="trust-icon">✦</div><span><strong style="color:var(--g2)">33 questions</strong> · 6 modules</span></div>
+      <div class="trust-item"><div class="trust-icon">↩</div><span>Retour collectif <strong style="color:var(--g2)">garanti</strong></span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ FORM ═══ -->
+<div id="formView" class="view">
+  <div class="form-header">
+    <h2>Questionnaire de Diagnostic <em style="font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--g2);font-weight:300;">Lean</em></h2>
+    <p id="stepLabel">Module ID · Étape 1 / 7</p>
+  </div>
+  <div class="progress-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+  <div class="steps-bar" id="stepsBar"></div>
+  <div class="form-body" id="formBody"></div>
+</div>
+
+<!-- ═══ ADMIN ═══ -->
+<div id="adminView" class="view">
+  <!-- Login (affiché si pas connecté) -->
+  <div id="loginScreen" class="login-screen">
+    <div class="login-card">
+      <h2>Accès Administration</h2>
+      <p>Réservé aux administrateurs autorisés</p>
+      <div class="login-field">
+        <label>Email</label>
+        <input type="text" id="loginEmail" placeholder="admin@tunav.tn" onkeydown="if(event.key==='Enter')doLogin()"/>
+      </div>
+      <div class="login-field">
+        <label>Mot de passe</label>
+        <input type="password" id="loginPassword" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"/>
+      </div>
+      <button class="btn-login" id="loginBtn" onclick="doLogin()">Se connecter</button>
+      <div class="login-err" id="loginErr"></div>
+    </div>
+  </div>
+  <!-- Dashboard (affiché si connecté) -->
+  <div id="adminDash" class="admin-dash" style="display:none;">
+    <div class="admin-top">
+      <div>
+        <h2>Tableau de Bord · Réponses</h2>
+        <div class="a-meta" id="adminMeta">Chargement…</div>
+      </div>
+      <div class="admin-top-right">
+        <button class="btn-export" onclick="exportCSV()">↓ Exporter CSV</button>
+        <button class="btn-danger" onclick="clearAll()">Effacer tout</button>
+        <button class="btn-logout" onclick="doLogout()">Déconnexion</button>
+      </div>
+    </div>
+    <div class="admin-body">
+      <div class="stats-row" id="statsRow"></div>
+      <div class="filter-bar">
+        <input type="text" id="searchInput" placeholder="Rechercher par nom, poste, service…" oninput="searchDebounce()"/>
+      </div>
+      <div id="responseList"></div>
+      <div class="pagination" id="pagination"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// CONFIG — remplace par l'URL de ton backend Railway/Render
+// ═══════════════════════════════════════════════════════════
+const API_URL = 'https://backendleanmenuiserie.railway.internal';
+
+// ═══════════════════════════════════════════════════════════
+// SECTIONS
+// ═══════════════════════════════════════════════════════════
+const sections=[
+  {id:'id',letter:'',title:'Identification du répondant',subtitle:'Optionnel — l\'anonymat est respecté si vous laissez ces champs vides.',questions:[
+    {id:'nom',type:'text',label:'Nom / Prénom'},
+    {id:'fonction',type:'text',label:'Fonction / Poste'},
+    {id:'service',type:'text',label:'Service / Cellule'},
+    {id:'anciennete',type:'text',label:'Ancienneté'},
+    {id:'niveau',type:'text',label:'Niveau hiérarchique'}
+  ]},
+  {id:'A',letter:'A',title:'Vision Stratégique & Priorités',subtitle:'Aligner le système de pilotage sur la stratégie réelle de l\'entreprise.',questions:[
+    {id:'Q1',type:'textarea',label:'Quels sont les 3 résultats les plus importants à atteindre dans les 12 prochains mois ?',hint:'Ex : croissance du CA, réduction des délais, montée en gamme…'},
+    {id:'Q2',type:'radio',label:'Quel est le principal levier de compétitivité aujourd\'hui ?',options:['La qualité irréprochable du produit','Les délais de livraison courts','Le prix / la compétitivité tarifaire','L\'innovation et la personnalisation','La relation client et le service','La capacité de production (volume)','La réputation / positionnement haut de gamme','Autre']},
+    {id:'Q3',type:'textarea',label:'Si l\'atelier fonctionnait parfaitement dans 2 ans, à quoi ressemblerait-il ?'},
+    {id:'Q4',type:'scale',label:'Dans quelle mesure êtes-vous satisfait de la performance globale de l\'atelier ?',min:'Très insatisfait',max:'Pleinement satisfait'},
+    {id:'Q5',type:'textarea',label:'Quels sont vos 2 ou 3 irritants majeurs, gaspillages évidents ou points de blocage récurrents ?',hint:'Répondez librement — ces éléments guideront les bons indicateurs.'},
+    {id:'Q6',type:'matrix',label:'Évaluez l\'importance actuelle de ces axes stratégiques.',cols:['Pas prioritaire','Priorité moyenne','Priorité haute','Critique'],rows:['Réduction des coûts','Amélioration qualité produit','Réduction des délais','Zéro gaspillage bois','Satisfaction client','Sécurité opérateurs','Développement compétences','Traçabilité et conformité']}
+  ]},
+  {id:'B',letter:'B',title:'Indicateurs de Performance (KPI)',subtitle:'Ne mesurer que ce qui est utile, compréhensible et actionnable.',questions:[
+    {id:'Q7',type:'textarea',label:'Quels indicateurs suivez-vous déjà ? Comment et à quelle fréquence ?',hint:'Ex : tableau Excel, réunion hebdo, reporting direction…'},
+    {id:'Q8',type:'matrix',label:'Pour chaque indicateur, indiquez son importance pour VOTRE rôle.',cols:['Pas utile','Utile','Indispensable'],rows:['Rendement matière bois','Taux de rebut / non-conformes','Délai commande → livraison','Taux de livraison à date','OEE (efficience machines)','Productivité opérateurs','Coût de la non-qualité','Taux d\'absentéisme','Polyvalence des équipes','NPS / satisfaction client','Rotation du stock bois','NC détectées / traitées']},
+    {id:'Q9',type:'textarea',label:'Y a-t-il des indicateurs que vous souhaiteriez voir apparaître ?',hint:'Décrivez l\'indicateur et comment il pourrait se calculer.'},
+    {id:'Q10',type:'checkbox',label:'À quelle fréquence souhaiteriez-vous consulter votre tableau de bord ?',options:['En temps réel (dashboard)','Chaque matin (briefing)','Chaque semaine (réunion hebdo)','Chaque mois (revue mensuelle)','À la demande uniquement','Résumé papier imprimé']},
+    {id:'Q11',type:'scale',label:'Les indicateurs actuels vous permettent-ils de prendre des décisions rapidement ?',min:'Pas du tout',max:'Totalement'},
+    {id:'Q12',type:'textarea',label:'Qu\'est-ce qui vous manque pour détecter un problème AVANT qu\'il devienne critique ?',hint:'Informations manquantes, outils insuffisants, délais trop longs…'}
+  ]},
+  {id:'C',letter:'C',title:'Vécu Terrain & Quotidien Opérationnel',subtitle:'Essentiel pour les opérateurs, chefs de cellule et responsables de production.',questions:[
+    {id:'Q13',type:'textarea',label:'Décrivez une journée typique. Quels sont les moments où vous perdez du temps inutilement ?',hint:'Cherche d\'outils, attentes matière, pannes, retravail…'},
+    {id:'Q14',type:'checkbox',label:'Quelles sont les principales sources de gaspillage dans votre zone de travail ?',options:['Mouvements inutiles','Attentes (matière, machine, instruction)','Surproduction','Défauts / retouches / rebuts','Stocks excessifs','Traitements sans valeur ajoutée','Sous-utilisation des compétences','Manque de communication']},
+    {id:'Q15',type:'textarea',label:'Lorsqu\'un problème survient, que faites-vous ? Qui alertez-vous ?',hint:'Décrivez le processus réel, pas le théorique.'},
+    {id:'Q16',type:'scale',label:'Qualité de la communication entre les différents postes / cellules ?',min:'Très mauvaise',max:'Excellente'},
+    {id:'Q17',type:'scale',label:'Quand un problème qualité est détecté, à quelle vitesse est-il résolu ?',min:'Jamais / très lentement',max:'Immédiatement'},
+    {id:'Q18',type:'textarea',label:'Y a-t-il des règles ou habitudes qui créent de la confusion ou ralentissent inutilement ?',hint:'Répondez librement et sans filtre.'},
+    {id:'Q19',type:'textarea',label:'À l\'inverse, quelles pratiques fonctionnent bien et mériteraient d\'être généralisées ?'}
+  ]},
+  {id:'D',letter:'D',title:'Management, Équipe & Culture',subtitle:'Comprendre ce qui favorise ou freine l\'engagement et la performance.',questions:[
+    {id:'Q20',type:'scale',label:'Dans quelle mesure vous sentez-vous impliqué dans les décisions quotidiennes ?',min:'Pas du tout',max:'Pleinement'},
+    {id:'Q21',type:'radio',label:'Comment percevez-vous l\'introduction de nouveaux outils de suivi ?',options:['Comme une opportunité d\'amélioration','Comme un outil utile si bien expliqué','Avec prudence — ça dépend de comment c\'est fait','Avec réserve — peur de la pression','Avec résistance — surveillance accrue','Je n\'ai pas d\'opinion tranchée']},
+    {id:'Q22',type:'textarea',label:'Qu\'est-ce qui rendrait l\'introduction de KPI acceptable et motivante ?',hint:'Conditions, garanties, mode de partage…'},
+    {id:'Q23',type:'textarea',label:'Y a-t-il des sujets "tabous" qu\'un système de suivi pourrait exposer maladroitement ?'},
+    {id:'Q24',type:'scale',label:'Faites-vous confiance au fait que les données serviront à améliorer, pas à sanctionner ?',min:'Aucune confiance',max:'Confiance totale'},
+    {id:'Q25',type:'textarea',label:'Quelles garanties vous permettraient d\'adhérer pleinement au système ?'},
+    {id:'Q26',type:'checkbox',label:'Quel format de partage des résultats vous paraît le plus adapté ?',options:['Affichage dans l\'atelier','Réunion courte quotidienne (10 min)','Réunion hebdomadaire','Dashboard digital partagé','Email / rapport hebdo','Application mobile','Rapport mensuel direction']}
+  ]},
+  {id:'E',letter:'E',title:'Ressources, Formation & Outils',subtitle:'Évaluer les capacités disponibles pour réussir la démarche Lean.',questions:[
+    {id:'Q27',type:'matrix',label:'Évaluez votre niveau de maîtrise actuel.',cols:['Débutant','Initié','Autonome','Expert'],rows:['Lecture d\'un tableau de bord','Saisie d\'indicateurs','Analyse d\'un écart','Identification cause racine','Excel / logiciel gestion','Animation réunion de suivi','Fiche de non-conformité','Conduite action corrective']},
+    {id:'Q28',type:'checkbox',label:'Sur quels sujets souhaiteriez-vous être formé en priorité ?',options:['Lecture et analyse des KPI','Méthodes Lean (5S, Kanban, 5P)','Animation réunion stand-up','Gestion des non-conformités','Outils digitaux de suivi','Leadership et communication','Optimisation nesting (découpe)','Contrôle qualité et inspection']},
+    {id:'Q29',type:'textarea',label:'De quels moyens supplémentaires auriez-vous besoin pour appliquer le Lean ?'},
+    {id:'Q30',type:'scale',label:'Votre équipe est-elle prête à adopter une nouvelle façon de travailler si bien accompagnée ?',min:'Pas du tout prête',max:'Totalement prête'}
+  ]},
+  {id:'F',letter:'F',title:'Expression Libre',subtitle:'Un espace pour dire ce que le questionnaire n\'a peut-être pas couvert.',questions:[
+    {id:'Q31',type:'textarea',label:'Y a-t-il quelque chose d\'important que vous souhaitez partager ?',hint:'Aucun sujet n\'est trop petit ou trop grand.'},
+    {id:'Q32',type:'textarea',label:'Si vous n\'aviez qu\'un seul conseil à donner à la direction, quel serait-il ?'},
+    {id:'Q33',type:'scale',label:'Dans quelle mesure êtes-vous optimiste sur le succès de cette démarche ?',min:'Pas du tout',max:'Très optimiste'}
+  ]}
+];
+
+// ═══════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════
+let step=0, answers={};
+let adminToken=null, adminPage=1, adminSearch='', searchTimer=null;
+let allResponsesCache=[];
+
+// ═══════════════════════════════════════════════════════════
+// VIEWS
+// ═══════════════════════════════════════════════════════════
+function showView(name){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  ['nb-home','nb-form','nb-admin'].forEach(id=>document.getElementById(id).classList.remove('active'));
+  document.getElementById(name==='hero'?'hero':name==='form'?'formView':'adminView').classList.add('active');
+  document.getElementById(name==='hero'?'nb-home':name==='form'?'nb-form':'nb-admin').classList.add('active');
+  window.scrollTo(0,0);
+}
+function startForm(){step=0;answers={};showView('form');buildDots();renderStep();}
+function showAdmin(){showView('admin');checkAuth();}
+
+// ═══════════════════════════════════════════════════════════
+// AUTH
+// ═══════════════════════════════════════════════════════════
+async function checkAuth(){
+  const saved=sessionStorage.getItem('lean_token');
+  if(!saved){showLogin();return;}
+  try{
+    const r=await fetch(`${API_URL}/api/admin/verify`,{headers:{Authorization:`Bearer ${saved}`}});
+    if(r.ok){adminToken=saved;showDash();}
+    else{sessionStorage.removeItem('lean_token');showLogin();}
+  }catch{showLogin();}
+}
+function showLogin(){
+  document.getElementById('loginScreen').style.display='flex';
+  document.getElementById('adminDash').style.display='none';
+}
+function showDash(){
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('adminDash').style.display='block';
+  loadAdmin();
+}
+async function doLogin(){
+  const email=document.getElementById('loginEmail').value.trim();
+  const pass=document.getElementById('loginPassword').value;
+  const err=document.getElementById('loginErr');
+  const btn=document.getElementById('loginBtn');
+  if(!email||!pass){err.textContent='Veuillez remplir tous les champs.';return;}
+  btn.disabled=true;btn.textContent='Connexion…';err.textContent='';
+  try{
+    const r=await fetch(`${API_URL}/api/admin/login`,{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({email,password:pass})
+    });
+    const d=await r.json();
+    if(r.ok){
+      adminToken=d.token;
+      sessionStorage.setItem('lean_token',adminToken);
+      showDash();
+    }else{
+      err.textContent=d.error||'Identifiants incorrects.';
+    }
+  }catch{err.textContent='Erreur de connexion au serveur.';}
+  btn.disabled=false;btn.textContent='Se connecter';
+}
+function doLogout(){
+  adminToken=null;sessionStorage.removeItem('lean_token');
+  showLogin();
+  document.getElementById('loginEmail').value='';
+  document.getElementById('loginPassword').value='';
+}
+
+// ═══════════════════════════════════════════════════════════
+// ADMIN — LOAD DATA
+// ═══════════════════════════════════════════════════════════
+async function loadAdmin(){
+  await Promise.all([loadStats(),loadResponses()]);
+}
+async function loadStats(){
+  try{
+    const r=await authFetch('/api/responses/stats');
+    if(!r)return;
+    const d=await r.json();
+    document.getElementById('statsRow').innerHTML=`
+      <div class="stat-card"><div class="stat-num">${d.total}</div><div class="stat-label">Réponses reçues</div></div>
+      <div class="stat-card"><div class="stat-num">${d.avgSatisfaction||'–'}</div><div class="stat-label">Satisfaction atelier /10</div></div>
+      <div class="stat-card"><div class="stat-num">${d.avgConfiance||'–'}</div><div class="stat-label">Indice de confiance /10</div></div>
+      <div class="stat-card"><div class="stat-num">${d.avgOptimisme||'–'}</div><div class="stat-label">Optimisme moyen /10</div></div>
+      ${d.topLevier?`<div class="stat-card"><div class="stat-num" style="font-size:1rem;margin-top:.2rem;line-height:1.3">${d.topLevier}</div><div class="stat-label">Levier principal</div></div>`:''}`;
+    document.getElementById('adminMeta').textContent=`Dernière mise à jour : ${new Date().toLocaleString('fr-FR')}`;
+  }catch(e){console.error(e);}
+}
+async function loadResponses(){
+  const list=document.getElementById('responseList');
+  list.innerHTML=`<div class="loading">Chargement des réponses…</div>`;
+  try{
+    const params=new URLSearchParams({page:adminPage,limit:20,search:adminSearch});
+    const r=await authFetch(`/api/responses?${params}`);
+    if(!r)return;
+    const d=await r.json();
+    allResponsesCache=d.data;
+    renderRespList(d.data);
+    renderPagination(d.page,d.pages,d.total);
+  }catch(e){list.innerHTML=`<div class="empty-state">Erreur de chargement.</div>`;}
+}
+function searchDebounce(){
+  clearTimeout(searchTimer);
+  searchTimer=setTimeout(()=>{adminSearch=document.getElementById('searchInput').value;adminPage=1;loadResponses();},400);
+}
+
+// ═══════════════════════════════════════════════════════════
+// RENDER RESPONSES
+// ═══════════════════════════════════════════════════════════
+function renderRespList(data){
+  const list=document.getElementById('responseList');
+  if(!data.length){list.innerHTML=`<div class="empty-state">Aucune réponse trouvée.</div>`;return;}
+  list.innerHTML=data.map((r,i)=>buildCard(r,i)).join('');
+}
+function buildCard(r,i){
+  const a=r.answers;
+  const nom=a.id_nom||'Anonyme';
+  const fn=a.id_fonction||'—';
+  const svc=a.id_service||'—';
+  const date=new Date(r.submittedAt).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+  const secs=[
+    {t:'A — Vision Stratégique',qs:[['Résultats 12 mois (Q1)',a.Q1],['Levier compétitivité (Q2)',a.Q2],['Vision atelier 2 ans (Q3)',a.Q3],['Satisfaction atelier (Q4)',a.Q4?a.Q4+'/10':null],['Irritants majeurs (Q5)',a.Q5]]},
+    {t:'B — KPI & Indicateurs',qs:[['Indicateurs suivis (Q7)',a.Q7],['Indicateurs souhaités (Q9)',a.Q9],['Fréquence tableau de bord (Q10)',arr(a.Q10)],['Décisions rapides (Q11)',a.Q11?a.Q11+'/10':null],['Ce qui manque (Q12)',a.Q12]]},
+    {t:'C — Vécu Terrain',qs:[['Journée typique (Q13)',a.Q13],['Sources gaspillage (Q14)',arr(a.Q14)],['Processus alerte (Q15)',a.Q15],['Communication inter-postes (Q16)',a.Q16?a.Q16+'/10':null],['Réactivité qualité (Q17)',a.Q17?a.Q17+'/10':null],['Règles problématiques (Q18)',a.Q18],['Bonnes pratiques (Q19)',a.Q19]]},
+    {t:'D — Management & Culture',qs:[['Implication décisions (Q20)',a.Q20?a.Q20+'/10':null],['Perception nouveaux outils (Q21)',a.Q21],['Conditions d\'adhésion (Q22)',a.Q22],['Sujets sensibles (Q23)',a.Q23],['Confiance données (Q24)',a.Q24?a.Q24+'/10':null],['Garanties souhaitées (Q25)',a.Q25],['Format partage résultats (Q26)',arr(a.Q26)]]},
+    {t:'E — Ressources & Formation',qs:[['Formations souhaitées (Q28)',arr(a.Q28)],['Moyens nécessaires (Q29)',a.Q29],['Préparation équipe (Q30)',a.Q30?a.Q30+'/10':null]]},
+    {t:'F — Expression Libre',qs:[['Message libre (Q31)',a.Q31],['Conseil à la direction (Q32)',a.Q32],['Optimisme (Q33)',a.Q33?a.Q33+'/10':null]]}
+  ];
+  const body=secs.map(s=>{
+    const rows=s.qs.filter(([,v])=>v&&v!=='').map(([q,v])=>`<div class="resp-row"><div class="resp-q">${q}</div><div class="resp-a">${v}</div></div>`).join('');
+    return rows?`<div class="resp-sec"><div class="resp-sec-title">${s.t}</div>${rows}</div>`:'';
+  }).join('');
+  return `<div class="resp-card">
+    <div class="resp-hdr" onclick="toggleCard('rc${i}','rv${i}')">
+      <div><div class="resp-name">${nom}</div><div class="resp-meta">${fn} · ${svc} · ${date}</div></div>
+      <div style="display:flex;align-items:center;gap:.6rem;">
+        ${a.id_niveau?`<span class="resp-badge">${a.id_niveau}</span>`:''}
+        <span class="resp-chev" id="rv${i}">▼</span>
+      </div>
+    </div>
+    <div class="resp-body" id="rc${i}">
+      <div style="display:flex;justify-content:flex-end;margin-bottom:1rem;">
+        <button class="btn-danger" onclick="deleteOne('${r._id}')" style="font-size:.68rem;padding:.28rem .8rem;">Supprimer</button>
+      </div>
+      ${body}
+    </div>
+  </div>`;
+}
+function arr(v){return Array.isArray(v)?v.join(', '):v||'';}
+function toggleCard(bodyId,chevId){
+  const b=document.getElementById(bodyId);
+  const c=document.getElementById(chevId);
+  const h=b.previousElementSibling;
+  const open=b.classList.contains('open');
+  b.classList.toggle('open',!open);
+  h.classList.toggle('open',!open);
+  c.classList.toggle('open',!open);
+}
+function renderPagination(page,pages,total){
+  const el=document.getElementById('pagination');
+  if(pages<=1){el.innerHTML='';return;}
+  let html=`<button class="page-btn" onclick="goPage(${page-1})" ${page<=1?'disabled':''}>←</button>`;
+  for(let i=1;i<=pages;i++){
+    html+=`<button class="page-btn ${i===page?'active':''}" onclick="goPage(${i})">${i}</button>`;
+  }
+  html+=`<button class="page-btn" onclick="goPage(${page+1})" ${page>=pages?'disabled':''}>→</button>`;
+  html+=`<span style="font-size:.72rem;color:var(--tl);margin-left:.5rem">${total} réponses</span>`;
+  el.innerHTML=html;
+}
+function goPage(p){adminPage=p;loadResponses();window.scrollTo(0,200);}
+
+// ═══════════════════════════════════════════════════════════
+// DELETE / CLEAR
+// ═══════════════════════════════════════════════════════════
+async function deleteOne(id){
+  if(!confirm('Supprimer cette réponse ?'))return;
+  const r=await authFetch(`/api/responses/${id}`,{method:'DELETE'});
+  if(r&&r.ok){showToast('Réponse supprimée.');loadAdmin();}
+  else showToast('Erreur suppression.',true);
+}
+async function clearAll(){
+  if(!confirm('Supprimer TOUTES les réponses ? Action irréversible.'))return;
+  const r=await authFetch('/api/responses',{method:'DELETE'});
+  if(r&&r.ok){showToast('Toutes les réponses supprimées.');loadAdmin();}
+  else showToast('Erreur.',true);
+}
+
+// ═══════════════════════════════════════════════════════════
+// EXPORT CSV
+// ═══════════════════════════════════════════════════════════
+async function exportCSV(){
+  const r=await authFetch('/api/responses?limit=1000');
+  if(!r||!r.ok)return showToast('Erreur export.',true);
+  const d=await r.json();
+  const rows=d.data;
+  if(!rows.length)return showToast('Aucune donnée à exporter.',true);
+  const headers=['ID','Date','Nom','Fonction','Service','Ancienneté','Niveau','Q1','Q2','Q3','Q4','Q5','Q7','Q9','Q10','Q11','Q12','Q13','Q14','Q15','Q16','Q17','Q18','Q19','Q20','Q21','Q22','Q23','Q24','Q25','Q26','Q28','Q29','Q30','Q31','Q32','Q33'];
+  const csv=[headers.join(','),...rows.map(r=>{
+    const a=r.answers;
+    return [r._id,new Date(r.submittedAt).toLocaleString('fr-FR'),a.id_nom||'',a.id_fonction||'',a.id_service||'',a.id_anciennete||'',a.id_niveau||'',a.Q1||'',a.Q2||'',a.Q3||'',a.Q4||'',a.Q5||'',a.Q7||'',a.Q9||'',arr(a.Q10),a.Q11||'',a.Q12||'',a.Q13||'',arr(a.Q14),a.Q15||'',a.Q16||'',a.Q17||'',a.Q18||'',a.Q19||'',a.Q20||'',a.Q21||'',a.Q22||'',a.Q23||'',a.Q24||'',a.Q25||'',arr(a.Q26),arr(a.Q28),a.Q29||'',a.Q30||'',a.Q31||'',a.Q32||'',a.Q33||''].map(v=>'"'+String(v).replace(/"/g,'""')+'"');
+  }).map(r=>r.join(','))].join('\n');
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);
+  a.download=`lean_reponses_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  showToast(`${rows.length} réponses exportées ✓`);
+}
+
+// ═══════════════════════════════════════════════════════════
+// AUTH FETCH
+// ═══════════════════════════════════════════════════════════
+async function authFetch(path,opts={}){
+  const token=adminToken||sessionStorage.getItem('lean_token');
+  if(!token){doLogout();return null;}
+  const res=await fetch(API_URL+path,{...opts,headers:{...opts.headers,'Authorization':`Bearer ${token}`,'Content-Type':'application/json'}});
+  if(res.status===401){doLogout();return null;}
+  return res;
+}
+
+// ═══════════════════════════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════════════════════════
+function showToast(msg,err=false){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className='toast'+(err?' err':'');
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+// ═══════════════════════════════════════════════════════════
+// FORM STEPS
+// ═══════════════════════════════════════════════════════════
+function buildDots(){
+  document.getElementById('stepsBar').innerHTML=sections.map((s,i)=>
+    `<div class="step-dot" id="dot${i}" onclick="goToStep(${i})">${s.letter||'ID'}</div>`).join('');
+}
+function updateDots(){
+  sections.forEach((_,i)=>{
+    const d=document.getElementById('dot'+i);
+    d.className='step-dot'+(i===step?' active':i<step?' done':'');
+  });
+  document.getElementById('progressBar').style.width=(step/(sections.length-1)*100)+'%';
+  document.getElementById('stepLabel').textContent=`Module ${sections[step].letter||'ID'} · Étape ${step+1} / ${sections.length}`;
+}
+function goToStep(i){if(i<=step){step=i;renderStep();}}
+
+function renderStep(){
+  updateDots();
+  const s=sections[step];
+  const body=document.getElementById('formBody');
+  body.innerHTML=`
+    <div class="sec-header">
+      ${s.letter?`<div class="sec-letter">${s.letter}</div>`:''}
+      <div class="sec-title">${s.title}</div>
+      <div class="sec-sub">${s.subtitle}</div>
+    </div>
+    ${s.id==='id'?renderIdSec():s.questions.map(q=>renderQ(q)).join('')}
+    <div class="form-nav">
+      ${step>0?`<button class="btn-prev" onclick="prevStep()">← Précédent</button>`:'<div></div>'}
+      <span class="step-info">${step+1} / ${sections.length}</span>
+      ${step<sections.length-1?`<button class="btn-next" onclick="nextStep()">Suivant →</button>`:`<button class="btn-submit" onclick="submitForm()">Envoyer ✓</button>`}
+    </div>`;
+  restoreAnswers(s);
+  window.scrollTo(0,0);
+}
+function renderIdSec(){
+  return `<div class="id-grid">
+    <div class="id-field"><label>Nom / Prénom</label><input type="text" id="f_nom" placeholder="Optionnel"/></div>
+    <div class="id-field"><label>Fonction / Poste</label><input type="text" id="f_fonction" placeholder="Optionnel"/></div>
+    <div class="id-field"><label>Service / Cellule</label><input type="text" id="f_service" placeholder="Optionnel"/></div>
+    <div class="id-field"><label>Ancienneté</label><input type="text" id="f_anciennete" placeholder="Ex: 3 ans"/></div>
+    <div class="id-field full"><label>Niveau hiérarchique</label><input type="text" id="f_niveau" placeholder="Opérateur / Chef de cellule / Manager / Direction…"/></div>
+  </div>`;
+}
+function renderQ(q){
+  let inner='';
+  const hint=q.hint?`<div class="q-hint">${q.hint}</div>`:'';
+  if(q.type==='textarea'){inner=`${hint}<textarea id="f_${q.id}" placeholder="Votre réponse…"></textarea>`;}
+  else if(q.type==='text'){inner=`${hint}<input type="text" id="f_${q.id}" placeholder="Votre réponse…"/>`;}
+  else if(q.type==='scale'){inner=`<div class="scale-labels"><span>${q.min}</span><span>${q.max}</span></div><div class="scale-btns">${[1,2,3,4,5,6,7,8,9,10].map(n=>`<button class="s-btn" id="f_${q.id}_${n}" onclick="selScale('${q.id}',${n})">${n}</button>`).join('')}</div>`;}
+  else if(q.type==='radio'){inner=`<div class="opts">${q.options.map((o,i)=>`<label class="opt" id="f_${q.id}_o${i}"><input type="radio" name="${q.id}" value="${o}" onchange="selRadio('${q.id}',${i})"/><span>${o}</span></label>`).join('')}</div>`;}
+  else if(q.type==='checkbox'){inner=`<div class="opts two">${q.options.map((o,i)=>`<label class="opt" id="f_${q.id}_o${i}"><input type="checkbox" value="${o}" onchange="togCheck('${q.id}')"/><span>${o}</span></label>`).join('')}</div>`;}
+  else if(q.type==='matrix'){inner=`<div class="matrix-wrap"><table class="mtx"><thead><tr><th></th>${q.cols.map(c=>`<th>${c}</th>`).join('')}</tr></thead><tbody>${q.rows.map((r,ri)=>`<tr><td>${r}</td>${q.cols.map((_,ci)=>`<td><input class="mrad" type="radio" name="${q.id}_r${ri}" value="${q.cols[ci]}" onchange="saveMtx('${q.id}')"/></td>`).join('')}</tr>`).join('')}</tbody></table></div>`;}
+  return `<div class="question"><div class="q-label"><span class="q-num">${q.id}.</span>${q.label}</div>${inner}</div>`;
+}
+function restoreAnswers(s){
+  if(s.id==='id'){['nom','fonction','service','anciennete','niveau'].forEach(k=>{const el=document.getElementById('f_'+k);if(el&&answers['id_'+k])el.value=answers['id_'+k];});return;}
+  s.questions.forEach(q=>{
+    const v=answers[q.id];if(!v)return;
+    if(q.type==='textarea'||q.type==='text'){const el=document.getElementById('f_'+q.id);if(el)el.value=v;}
+    else if(q.type==='scale'){[1,2,3,4,5,6,7,8,9,10].forEach(n=>{const b=document.getElementById(`f_${q.id}_${n}`);if(b)b.classList.toggle('sel',n==v);});}
+    else if(q.type==='radio'){q.options.forEach((_,i)=>{const el=document.getElementById(`f_${q.id}_o${i}`);if(el){const inp=el.querySelector('input');if(inp&&inp.value===v){inp.checked=true;el.classList.add('sel');}}});}
+    else if(q.type==='checkbox'&&Array.isArray(v)){q.options.forEach((o,i)=>{const el=document.getElementById(`f_${q.id}_o${i}`);if(el){const inp=el.querySelector('input');if(inp&&v.includes(o)){inp.checked=true;el.classList.add('sel');}}});}
+    else if(q.type==='matrix'&&typeof v==='object'){q.rows.forEach((r,ri)=>{const ch=v[r];if(ch){const rads=document.querySelectorAll(`input[name="${q.id}_r${ri}"]`);rads.forEach(rad=>{if(rad.value===ch)rad.checked=true;});}});}
+  });
+}
+function saveStep(){
+  const s=sections[step];
+  if(s.id==='id'){['nom','fonction','service','anciennete','niveau'].forEach(k=>{const el=document.getElementById('f_'+k);if(el)answers['id_'+k]=el.value;});return;}
+  s.questions.forEach(q=>{
+    if(q.type==='textarea'||q.type==='text'){const el=document.getElementById('f_'+q.id);if(el)answers[q.id]=el.value;}
+    else if(q.type==='matrix')saveMtx(q.id);
+  });
+}
+function selScale(id,n){answers[id]=n;[1,2,3,4,5,6,7,8,9,10].forEach(i=>{const b=document.getElementById(`f_${id}_${i}`);if(b)b.classList.toggle('sel',i===n);});}
+function selRadio(id,idx){const s=sections[step];const q=s.questions.find(q=>q.id===id);if(!q)return;answers[id]=q.options[idx];q.options.forEach((_,i)=>{const el=document.getElementById(`f_${id}_o${i}`);if(el)el.classList.toggle('sel',i===idx);});}
+function togCheck(id){const s=sections[step];const q=s.questions.find(q=>q.id===id);if(!q)return;const vals=[];q.options.forEach((o,i)=>{const el=document.getElementById(`f_${id}_o${i}`);if(el){const inp=el.querySelector('input');if(inp&&inp.checked){vals.push(o);el.classList.add('sel');}else el.classList.remove('sel');}});answers[id]=vals;}
+function saveMtx(id){const s=sections[step];const q=s.questions.find(q=>q.id===id);if(!q)return;const obj={};q.rows.forEach((r,ri)=>{const rads=document.querySelectorAll(`input[name="${id}_r${ri}"]`);rads.forEach(rad=>{if(rad.checked)obj[r]=rad.value;});});answers[id]=obj;}
+function nextStep(){saveStep();if(step<sections.length-1){step++;renderStep();}}
+function prevStep(){saveStep();if(step>0){step--;renderStep();}}
+
+async function submitForm(){
+  saveStep();
+  const btn=document.querySelector('.btn-submit');
+  if(btn){btn.disabled=true;btn.textContent='Envoi en cours…';}
+  try{
+    const res=await fetch(`${API_URL}/api/responses`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(answers)
+    });
+    if(res.ok){
+      document.getElementById('formBody').innerHTML=`
+        <div class="success-screen">
+          <div class="success-icon">✓</div>
+          <h2>Merci pour votre contribution.</h2>
+          <p>Vos réponses ont été enregistrées. Un retour collectif sera partagé à toute l'équipe.</p>
+          <div style="margin-top:2.5rem;display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+            <button class="btn-prev" onclick="showView('hero')" style="border-color:rgba(201,168,76,.4);color:var(--g2)">← Retour accueil</button>
+          </div>
+        </div>`;
+      document.getElementById('stepsBar').innerHTML='';
+      document.getElementById('progressBar').style.width='100%';
+    }else{
+      showToast('Erreur lors de l\'envoi. Réessayez.',true);
+      if(btn){btn.disabled=false;btn.textContent='Envoyer ✓';}
+    }
+  }catch{
+    showToast('Impossible de joindre le serveur. Vérifiez votre connexion.',true);
+    if(btn){btn.disabled=false;btn.textContent='Envoyer ✓';}
+  }
+}
+</script>
+</body>
+</html>
