@@ -360,7 +360,7 @@ textarea:focus,input[type=text]:focus{border-color:var(--gl);}
     <div class="login-card">
       <h2>Accès Admin</h2>
       <p>Réservé aux administrateurs autorisés</p>
-      <div class="lf"><label>Email</label><input type="email" id="loginEmail" placeholder="admin@tunav.tn" onkeydown="if(event.key==='Enter')doLogin()"/></div>
+      <div class="lf"><label>Email</label><input type="email" id="loginEmail" placeholder="adresse e-mail" onkeydown="if(event.key==='Enter')doLogin()"/></div>
       <div class="lf"><label>Mot de passe</label><input type="password" id="loginPassword" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"/></div>
       <button class="btn-login" id="loginBtn" onclick="doLogin()">Se connecter →</button>
       <div class="login-err" id="loginErr"></div>
@@ -642,6 +642,7 @@ function switchTab(tab){
   document.querySelectorAll('.dash-tab').forEach((t,i)=>t.classList.toggle('active',['stats','responses'][i]===tab));
   document.querySelectorAll('.dash-panel').forEach(p=>p.classList.remove('active'));
   document.getElementById('panel-'+tab).classList.add('active');
+  if(tab==='responses'){loadResponses();}
 }
 // ─ AUTH ─
 async function checkAuth(){
@@ -740,15 +741,105 @@ async function loadStatsPanel(){
   }catch(e){console.error(e);}
 }
 function searchDebounce(){clearTimeout(searchTimer);searchTimer=setTimeout(()=>{adminSearch=document.getElementById('searchInput').value;adminPage=1;loadResponses();},400);}
-function renderRespList(data){const list=document.getElementById('responseList');if(!data||!data.length){list.innerHTML=`<div class="empty-state">Aucune réponse trouvée.</div>`;return;}list.innerHTML=data.map((r,i)=>buildCard(r,i)).join('');}
-function av(v){return Array.isArray(v)?v.join(', '):v||'';}
-function buildCard(r,i){
-  const a=r.answers||{};const nom=a.id_nom||'Anonyme';const fn=a.id_fonction||'—';const svc=a.id_service||'—';const date=new Date(r.submittedAt).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
-  const secs=[{t:'A — Vision',qs:[['Résultats 12 mois',a.Q1],['Levier compétitivité',a.Q2],['Vision 2 ans',a.Q3],['Satisfaction',a.Q4?a.Q4+'/10':null],['Irritants',a.Q5]]},{t:'B — KPI',qs:[['Indicateurs suivis',a.Q7],['Indicateurs souhaités',a.Q9],['Fréquence',av(a.Q10)],['Décisions rapides',a.Q11?a.Q11+'/10':null],['Ce qui manque',a.Q12]]},{t:'C — Terrain',qs:[['Journée typique',a.Q13],['Gaspillages',av(a.Q14)],['Processus alerte',a.Q15],['Communication',a.Q16?a.Q16+'/10':null],['Réactivité qualité',a.Q17?a.Q17+'/10':null],['Règles problèmes',a.Q18],['Bonnes pratiques',a.Q19]]},{t:'D — Culture',qs:[['Implication',a.Q20?a.Q20+'/10':null],['Perception outils',a.Q21],["Conditions d'adhésion",a.Q22],['Sujets sensibles',a.Q23],['Confiance',a.Q24?a.Q24+'/10':null],['Garanties',a.Q25],['Format partage',av(a.Q26)]]},{t:'E — Formation',qs:[['Formations souhaitées',av(a.Q28)],['Moyens nécessaires',a.Q29],['Préparation équipe',a.Q30?a.Q30+'/10':null]]},{t:'F — Libre',qs:[['Message libre',a.Q31],['Conseil direction',a.Q32],['Optimisme',a.Q33?a.Q33+'/10':null]]}];
-  const body=secs.map(s=>{const rows=s.qs.filter(([,v])=>v&&v!=='').map(([q,v])=>`<div class="resp-row"><div class="resp-q">${q}</div><div class="resp-a">${v}</div></div>`).join('');return rows?`<div class="resp-sec"><div class="resp-st">${s.t}</div>${rows}</div>`:''}).join('');
-  return `<div class="resp-card"><div class="resp-hdr" onclick="togCard('rc${i}','rv${i}')"><div><div class="resp-name">${nom}</div><div class="resp-meta">${fn} · ${svc} · ${date}</div></div><div style="display:flex;align-items:center;gap:.5rem;">${a.id_niveau?`<span class="resp-badge">${a.id_niveau}</span>`:''}<span class="resp-chev" id="rv${i}">▼</span></div></div><div class="resp-body" id="rc${i}"><div style="display:flex;justify-content:flex-end;margin-bottom:1rem;"><button class="btn-danger" onclick="delOne('${r._id}')" style="font-size:.65rem;padding:.22rem .72rem;">Supprimer</button></div>${body}</div></div>`;
+function renderRespList(data){
+  const list=document.getElementById('responseList');
+  if(!list)return;
+  if(!data||!data.length){list.innerHTML=`<div class="empty-state">Aucune réponse trouvée.</div>`;return;}
+  list.innerHTML=data.map((r,i)=>buildCard(r,i)).join('');
 }
-function togCard(bId,cId){const b=document.getElementById(bId);const c=document.getElementById(cId);const h=b.previousElementSibling;const o=b.classList.contains('open');b.classList.toggle('open',!o);h.classList.toggle('open',!o);c.classList.toggle('open',!o);}
+function av(v){return Array.isArray(v)?v.join(', '):(v||'');}
+function fmtVal(v){
+  if(v===null||v===undefined||v==='')return null;
+  if(Array.isArray(v))return v.length?v.join(', '):null;
+  return String(v);
+}
+function buildCard(r,i){
+  const a=r.answers||{};
+  const nom=a.id_nom||'Anonyme';
+  const fn=a.id_fonction||'—';
+  const svc=a.id_service||'—';
+  const anc=a.id_anciennete?` · ${a.id_anciennete}`:'';
+  const date=new Date(r.submittedAt).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+
+  const secs=[
+    {t:'Identification',qs:[
+      ['Fonction / Poste',a.id_fonction],['Service / Cellule',a.id_service],
+      ['Ancienneté',a.id_anciennete],['Niveau hiérarchique',a.id_niveau]
+    ]},
+    {t:'A — Vision Stratégique',qs:[
+      ['Résultats 12 mois (Q1)',a.Q1],['Levier compétitivité (Q2)',a.Q2],
+      ['Vision atelier 2 ans (Q3)',a.Q3],['Satisfaction atelier (Q4)',a.Q4?`${a.Q4}/10`:null],
+      ['Irritants majeurs (Q5)',a.Q5],
+    ]},
+    {t:'B — Indicateurs KPI',qs:[
+      ['Indicateurs suivis (Q7)',a.Q7],['Indicateurs souhaités (Q9)',a.Q9],
+      ['Fréquence tableau de bord (Q10)',fmtVal(a.Q10)],
+      ['Décisions rapides (Q11)',a.Q11?`${a.Q11}/10`:null],['Ce qui manque (Q12)',a.Q12]
+    ]},
+    {t:'C — Vécu Terrain',qs:[
+      ['Journée typique (Q13)',a.Q13],['Sources gaspillage (Q14)',fmtVal(a.Q14)],
+      ['Processus alerte (Q15)',a.Q15],['Communication inter-postes (Q16)',a.Q16?`${a.Q16}/10`:null],
+      ['Réactivité qualité (Q17)',a.Q17?`${a.Q17}/10`:null],
+      ['Règles problématiques (Q18)',a.Q18],['Bonnes pratiques (Q19)',a.Q19]
+    ]},
+    {t:'D — Management & Culture',qs:[
+      ['Implication décisions (Q20)',a.Q20?`${a.Q20}/10`:null],
+      ['Perception nouveaux outils (Q21)',a.Q21],["Conditions d'adhésion (Q22)",a.Q22],
+      ['Sujets sensibles (Q23)',a.Q23],['Confiance données (Q24)',a.Q24?`${a.Q24}/10`:null],
+      ['Garanties souhaitées (Q25)',a.Q25],['Format partage résultats (Q26)',fmtVal(a.Q26)]
+    ]},
+    {t:'E — Ressources & Formation',qs:[
+      ['Formations souhaitées (Q28)',fmtVal(a.Q28)],
+      ['Moyens nécessaires (Q29)',a.Q29],['Préparation équipe (Q30)',a.Q30?`${a.Q30}/10`:null]
+    ]},
+    {t:'F — Expression Libre',qs:[
+      ['Message libre (Q31)',a.Q31],['Conseil à la direction (Q32)',a.Q32],
+      ['Optimisme démarche (Q33)',a.Q33?`${a.Q33}/10`:null]
+    ]}
+  ];
+
+  const bodyHtml=secs.map(s=>{
+    const rows=s.qs
+      .filter(([,v])=>v!==null&&v!==undefined&&v!=='')
+      .map(([lbl,val])=>`
+        <div class="resp-row">
+          <div class="resp-q">${lbl}</div>
+          <div class="resp-a">${String(val)}</div>
+        </div>`).join('');
+    return rows?`<div class="resp-sec"><div class="resp-st">${s.t}</div>${rows}</div>`:'';
+  }).join('');
+
+  const hasBody=bodyHtml.trim().length>0;
+
+  return `<div class="resp-card" id="card-wrap-${i}">
+    <div class="resp-hdr" id="hdr-${i}" onclick="togCard(${i})">
+      <div>
+        <div class="resp-name">${nom}</div>
+        <div class="resp-meta">${fn} · ${svc}${anc} · ${date}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:.5rem;">
+        ${a.id_niveau?`<span class="resp-badge">${a.id_niveau}</span>`:''}
+        <span class="resp-chev" id="chev-${i}">▼</span>
+      </div>
+    </div>
+    <div class="resp-body" id="body-${i}">
+      <div style="display:flex;justify-content:flex-end;margin-bottom:1rem;">
+        <button class="btn-danger" onclick="delOne('${r._id}')" style="font-size:.65rem;padding:.22rem .72rem;">Supprimer</button>
+      </div>
+      ${hasBody?bodyHtml:'<div style="font-size:.8rem;color:var(--tl);padding:.5rem 0;font-style:italic;">Aucune réponse enregistrée pour ce formulaire.</div>'}
+    </div>
+  </div>`;
+}
+function togCard(i){
+  const body=document.getElementById('body-'+i);
+  const hdr=document.getElementById('hdr-'+i);
+  const chev=document.getElementById('chev-'+i);
+  if(!body||!hdr||!chev)return;
+  const open=body.classList.contains('open');
+  body.classList.toggle('open',!open);
+  hdr.classList.toggle('open',!open);
+  chev.classList.toggle('open',!open);
+}
 function renderPagination(page,pages,total){const el=document.getElementById('pagination');if(pages<=1){el.innerHTML='';return;}let h=`<button class="page-btn" onclick="goPage(${page-1})" ${page<=1?'disabled':''}>←</button>`;for(let i=1;i<=pages;i++)h+=`<button class="page-btn ${i===page?'active':''}" onclick="goPage(${i})">${i}</button>`;h+=`<button class="page-btn" onclick="goPage(${page+1})" ${page>=pages?'disabled':''}>→</button><span style="font-size:.68rem;color:var(--tl);margin-left:.45rem">${total} réponses</span>`;el.innerHTML=h;}
 function goPage(p){adminPage=p;loadResponses();window.scrollTo(0,200);}
 async function delOne(id){if(!confirm('Supprimer cette réponse ?'))return;const r=await aFetch(`/api/responses/${id}`,{method:'DELETE'});if(r&&r.ok){showToast('Supprimé.');loadAdmin();}else showToast('Erreur.',true);}
