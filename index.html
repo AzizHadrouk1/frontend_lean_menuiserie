@@ -662,7 +662,10 @@ async function doLogin(){
 }
 function doLogout(){adminToken=null;sessionStorage.removeItem('lean_token');sessionStorage.removeItem('adminPathOk');showLogin();document.getElementById('loginEmail').value='';document.getElementById('loginPassword').value='';}
 // ─ ADMIN DATA ─
-async function loadAdmin(){await Promise.all([loadStatsPanel(),loadResponses()]);}
+async function loadAdmin(){
+  await loadStatsPanel();
+  loadResponses();
+}
 function calcAvg(all,q){const v=all.map(r=>r.answers?.[q]).filter(x=>x&&!isNaN(x)).map(Number);return v.length?(v.reduce((a,b)=>a+b,0)/v.length).toFixed(1):'–';}
 function mkdiv(cls){const d=document.createElement('div');if(cls)d.className=cls;return d;}
 async function loadStatsPanel(){
@@ -739,6 +742,23 @@ async function loadStatsPanel(){
     isec.innerHTML=`<div class="chart-title">Insights clés</div><div class="chart-sub">Signaux automatiquement détectés</div><div class="insight-list">${ins.length?ins.map(i=>`<div class="insight-item">${i}</div>`).join(''):'<div class="insight-item">Aucun signal particulier détecté — données équilibrées.</div>'}</div>`;
     el.appendChild(isec);
   }catch(e){console.error(e);}
+}
+async function loadResponses(){
+  const list=document.getElementById('responseList');
+  if(!list)return;
+  list.innerHTML=`<div class="loading">Chargement…</div>`;
+  try{
+    const params=new URLSearchParams({page:adminPage,limit:20,search:adminSearch});
+    const r=await aFetch(`/api/responses?${params}`);
+    if(!r)return;
+    const d=await r.json();
+    console.log('loadResponses data:', d);
+    renderRespList(d.data);
+    renderPagination(d.page,d.pages,d.total);
+  }catch(e){
+    console.error('loadResponses error:',e);
+    list.innerHTML=`<div class="empty-state">Erreur de chargement — voir console.</div>`;
+  }
 }
 function searchDebounce(){clearTimeout(searchTimer);searchTimer=setTimeout(()=>{adminSearch=document.getElementById('searchInput').value;adminPage=1;loadResponses();},400);}
 function renderRespList(data){
